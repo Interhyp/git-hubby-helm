@@ -1,0 +1,17 @@
+# Helm
+charts/
+*.tgz
+
+# IDE - JetBrains
+.idea/
+
+# IDE - VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log
+*.tmp
