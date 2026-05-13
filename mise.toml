@@ -1,0 +1,5 @@
+[settings]
+idiomatic_version_file_enable_tools = ["node"] # use .node-version
+
+[tools]
+helm = "4.0.4"

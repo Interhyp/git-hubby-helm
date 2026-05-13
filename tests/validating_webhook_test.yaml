@@ -1,0 +1,75 @@
+suite: validating-webhook-configuration
+templates:
+  - validating-webhook-configuration.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should render ValidatingWebhookConfiguration
+    asserts:
+      - isKind:
+          of: ValidatingWebhookConfiguration
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-validating-webhook-configuration
+
+  - it: should have cert-manager annotation
+    asserts:
+      - equal:
+          path: metadata.annotations["cert-manager.io/inject-ca-from"]
+          value: "test-ns/test-release-git-hubby-serving-cert"
+
+  - it: should configure organization webhook
+    asserts:
+      - equal:
+          path: webhooks[0].name
+          value: vorganization-v1alpha1.kb.io
+      - equal:
+          path: webhooks[0].clientConfig.service.name
+          value: test-release-git-hubby-webhook-service
+      - equal:
+          path: webhooks[0].clientConfig.service.namespace
+          value: test-ns
+      - equal:
+          path: webhooks[0].clientConfig.service.path
+          value: /validate-github-interhyp-de-v1alpha1-organization
+      - equal:
+          path: webhooks[0].failurePolicy
+          value: Fail
+      - equal:
+          path: webhooks[0].sideEffects
+          value: None
+
+  - it: should configure repository webhook
+    asserts:
+      - equal:
+          path: webhooks[1].name
+          value: vrepository-v1alpha1.kb.io
+      - equal:
+          path: webhooks[1].clientConfig.service.path
+          value: /validate-github-interhyp-de-v1alpha1-repository
+
+  - it: should set namespaceSelector from watchedNamespaces
+    asserts:
+      - equal:
+          path: webhooks[0].namespaceSelector.matchExpressions[0].key
+          value: kubernetes.io/metadata.name
+      - equal:
+          path: webhooks[0].namespaceSelector.matchExpressions[0].operator
+          value: In
+      - contains:
+          path: webhooks[0].namespaceSelector.matchExpressions[0].values
+          content: github-configuration
+
+  - it: should include multiple namespaces in selector
+    set:
+      controllerManager.watchedNamespaces:
+        - ns-a
+        - ns-b
+    asserts:
+      - equal:
+          path: webhooks[0].namespaceSelector.matchExpressions[0].values
+          value:
+            - ns-a
+            - ns-b
+

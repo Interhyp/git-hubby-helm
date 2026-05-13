@@ -4,6 +4,9 @@ charts/
 
 # IDE - JetBrains
 .idea/
+*.iws
+*.iml
+*.ipr
 
 # IDE - VS Code
 .vscode/
@@ -11,6 +14,14 @@ charts/
 # OS
 .DS_Store
 Thumbs.db
+
+# Node (CI tooling)
+node_modules/
+
+# Editor
+*.swp
+*.swo
+*~
 
 # Misc
 *.log

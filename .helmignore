@@ -1,0 +1,15 @@
+# Patterns to ignore when building packages.
+.git
+.gitignore
+.github
+node_modules
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+.DS_Store
+.idea
+*.tmproj
+.vscode
+

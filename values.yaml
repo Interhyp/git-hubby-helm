@@ -16,7 +16,8 @@ controllerManager:
       readOnlyRootFilesystem: true
     image:
       repository: ghcr.io/interhyp/git-hubby
-      tag: latest
+      # -- Overrides the image tag. Defaults to the chart's appVersion.
+      tag: ""
     resources:
       limits:
         cpu: 500m

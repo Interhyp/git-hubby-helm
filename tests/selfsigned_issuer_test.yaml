@@ -1,0 +1,21 @@
+suite: selfsigned-issuer
+templates:
+  - selfsigned-issuer.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should render an Issuer resource
+    asserts:
+      - isKind:
+          of: Issuer
+      - equal:
+          path: apiVersion
+          value: cert-manager.io/v1
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-selfsigned-issuer
+      - equal:
+          path: spec.selfSigned
+          value: {}
+

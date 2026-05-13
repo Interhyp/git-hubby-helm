@@ -1,0 +1,31 @@
+suite: configmap
+templates:
+  - envs.configmap.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should render ConfigMap with empty data by default
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-envs
+      - equal:
+          path: data
+          value: {}
+
+  - it: should include custom envs in data
+    set:
+      envs:
+        LOG_LEVEL: debug
+        RECONCILE_INTERVAL: "30s"
+    asserts:
+      - equal:
+          path: data.LOG_LEVEL
+          value: "debug"
+      - equal:
+          path: data.RECONCILE_INTERVAL
+          value: "30s"
+

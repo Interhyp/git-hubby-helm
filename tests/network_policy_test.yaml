@@ -1,0 +1,43 @@
+suite: network-policy
+templates:
+  - allow-webhook-traffic.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should create NetworkPolicy
+    asserts:
+      - isKind:
+          of: NetworkPolicy
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-allow-webhook-traffic
+
+  - it: should allow ingress from kube-system on port 9443
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].namespaceSelector.matchLabels["kubernetes.io/metadata.name"]
+          value: kube-system
+      - equal:
+          path: spec.ingress[0].ports[0].port
+          value: 9443
+      - equal:
+          path: spec.ingress[0].ports[0].protocol
+          value: TCP
+
+  - it: should select controller-manager pods
+    asserts:
+      - equal:
+          path: spec.podSelector.matchLabels["app.kubernetes.io/name"]
+          value: git-hubby
+      - equal:
+          path: spec.podSelector.matchLabels.control-plane
+          value: controller-manager
+
+  - it: should only have Ingress policy type
+    asserts:
+      - equal:
+          path: spec.policyTypes
+          value:
+            - Ingress
+

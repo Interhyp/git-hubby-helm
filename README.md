@@ -1,6 +1,6 @@
 # git-hubby Helm Chart
 
-A Kubernetes operator Helm chart for managing GitHub resources (organizations, repositories, teams, and security configurations) declaratively via Custom Resource Definitions (CRDs).
+A Helm chart for the [git-hubby](https://github.com/Interhyp/git-hubby) Kubernetes operator, managing GitHub resources (organizations, repositories, teams, and security configurations) declaratively via Custom Resource Definitions (CRDs).
 
 ## Overview
 
@@ -25,7 +25,10 @@ This chart deploys the **git-hubby** controller manager, a Kubernetes operator t
 ## Installation
 
 ```bash
-helm install git-hubby ./chart -n <namespace> --create-namespace -f my-values.yaml
+helm install git-hubby oci://ghcr.io/interhyp/git-hubby-helm/git-hubby \
+  --version <version> \
+  -n <namespace> --create-namespace \
+  -f my-values.yaml
 ```
 
 ## Custom Resource Definitions (CRDs)
@@ -61,8 +64,8 @@ CRDs are located in `chart/crds/` and are installed automatically. The API group
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `controllerManager.manager.image.repository` | Controller container image repository | `ghcr.io/organization/controller` |
-| `controllerManager.manager.image.tag` | Controller container image tag | `latest` |
+| `controllerManager.manager.image.repository` | Controller container image repository | `ghcr.io/interhyp/git-hubby` |
+| `controllerManager.manager.image.tag` | Controller container image tag (defaults to chart `appVersion` if empty) | `""` |
 | `controllerManager.manager.args` | Command-line arguments for the manager | See values.yaml |
 | `controllerManager.manager.resources.limits.cpu` | CPU resource limit | `500m` |
 | `controllerManager.manager.resources.limits.memory` | Memory resource limit | `128Mi` |
@@ -133,6 +136,22 @@ Both certificates use the built-in self-signed issuer deployed by the chart. No 
 | `kubernetesClusterDomain` | Kubernetes cluster domain suffix | `cluster.local` |
 | `nameOverride` | Override the chart name | `""` |
 | `fullnameOverride` | Override the full release name | `""` |
+
+## Testing
+
+This chart uses [helm-unittest](https://github.com/helm-unittest/helm-unittest) for unit testing. Tests are located in the `tests/` directory.
+
+### Running tests locally
+
+```bash
+# Install the helm-unittest plugin (one-time)
+helm plugin install https://github.com/helm-unittest/helm-unittest.git
+
+# Run all tests
+helm unittest .
+```
+
+Tests are also executed automatically in CI on every push to `main` and on pull requests.
 
 ## Architecture
 

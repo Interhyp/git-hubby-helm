@@ -1,0 +1,167 @@
+suite: deployment
+templates:
+  - deployment.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should render a Deployment with default values
+    asserts:
+      - isKind:
+          of: Deployment
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-controller-manager
+      - equal:
+          path: spec.replicas
+          value: 2
+      - equal:
+          path: spec.template.spec.containers[0].name
+          value: manager
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/interhyp/git-hubby:0.0.2"
+
+  - it: should use custom image tag when set
+    set:
+      controllerManager.manager.image.tag: "1.2.3"
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/interhyp/git-hubby:1.2.3"
+
+  - it: should set WATCH_NAMESPACE from watchedNamespaces
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WATCH_NAMESPACE
+            value: "github-configuration"
+
+  - it: should join multiple watchedNamespaces with comma
+    set:
+      controllerManager.watchedNamespaces:
+        - ns-one
+        - ns-two
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WATCH_NAMESPACE
+            value: "ns-one,ns-two"
+
+  - it: should set replicas from values
+    set:
+      controllerManager.replicas: 5
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 5
+
+  - it: should apply rolling update strategy
+    asserts:
+      - equal:
+          path: spec.strategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.strategy.rollingUpdate.maxSurge
+          value: 1
+      - equal:
+          path: spec.strategy.rollingUpdate.maxUnavailable
+          value: 0
+
+  - it: should set container security context
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+          value: true
+
+  - it: should set pod security context
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+
+  - it: should set resource limits and requests
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.cpu
+          value: 500m
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits.memory
+          value: 128Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.cpu
+          value: 10m
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests.memory
+          value: 64Mi
+
+  - it: should include liveness and readiness probes
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].livenessProbe.httpGet.path
+          value: /healthz
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.httpGet.path
+          value: /readyz
+
+  - it: should mount webhook certs volume
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /tmp/k8s-webhook-server/serving-certs
+            name: webhook-certs
+            readOnly: true
+
+  - it: should set topologySpreadConstraints with default label selector
+    asserts:
+      - exists:
+          path: spec.template.spec.topologySpreadConstraints
+      - equal:
+          path: spec.template.spec.topologySpreadConstraints[0].maxSkew
+          value: 1
+      - equal:
+          path: spec.template.spec.topologySpreadConstraints[0].topologyKey
+          value: kubernetes.io/hostname
+
+  - it: should apply custom podLabels
+    set:
+      controllerManager.podLabels:
+        custom-label: custom-value
+    asserts:
+      - equal:
+          path: spec.template.metadata.labels.custom-label
+          value: custom-value
+
+  - it: should use custom serviceAccount name
+    set:
+      serviceAccount.create: true
+      serviceAccount.name: my-sa
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: my-sa
+
+  - it: should default appCredentialsSecretNamespace to release namespace
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APP_CREDENTIALS_SECRET_NAMESPACE
+            value: "test-ns"
+
+  - it: should use custom appCredentialsSecretNamespace
+    set:
+      controllerManager.appCredentialsSecretNamespace: custom-ns
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: APP_CREDENTIALS_SECRET_NAMESPACE
+            value: "custom-ns"
+
