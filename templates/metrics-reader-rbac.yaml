@@ -1,9 +1,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "chart.fullname" . }}-metrics-reader
+  name: {{ include "git-hubby.fullname" . }}-metrics-reader
   labels:
-  {{- include "chart.labels" . | nindent 4 }}
+  {{- include "git-hubby.labels" . | nindent 4 }}
 rules:
 - nonResourceURLs:
   - /metrics

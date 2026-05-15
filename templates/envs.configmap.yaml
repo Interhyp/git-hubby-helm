@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "chart.fullname" . }}-envs
+  name: {{ include "git-hubby.fullname" . }}-envs
   labels:
-  {{- include "chart.labels" . | nindent 4 }}
+  {{- include "git-hubby.labels" . | nindent 4 }}
 {{ if .Values.envs }}
 data:
   {{ range $key, $value := .Values.envs }}
