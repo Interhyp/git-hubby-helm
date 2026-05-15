@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "chart.fullname" . }}-controller-manager
+  name: {{ include "git-hubby.fullname" . }}-controller-manager
   labels:
     control-plane: controller-manager
-  {{- include "chart.labels" . | nindent 4 }}
+  {{- include "git-hubby.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.controllerManager.replicas }}
   {{- with .Values.controllerManager.strategy }}
@@ -13,7 +13,7 @@ spec:
   selector:
     matchLabels:
       control-plane: controller-manager
-    {{- include "chart.selectorLabels" . | nindent 6 }}
+    {{- include "git-hubby.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
@@ -21,7 +21,7 @@ spec:
         {{- with .Values.controllerManager.podLabels }}
         {{ toYaml . | nindent 8 }}
         {{- end }}
-      {{- include "chart.selectorLabels" . | nindent 8 }}
+      {{- include "git-hubby.selectorLabels" . | nindent 8 }}
       annotations:
         kubectl.kubernetes.io/default-container: manager
     spec:
@@ -31,14 +31,14 @@ spec:
         - /manager
         env:
         - name: WATCH_NAMESPACE
-          value: {{ include "chart.watchNamespace" . | quote }}
+          value: {{ include "git-hubby.watchNamespace" . | quote }}
         - name: APP_CREDENTIALS_SECRET_NAMESPACE
           value: {{ .Values.controllerManager.appCredentialsSecretNamespace | default .Release.Namespace | quote }}
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
         envFrom:
         - configMapRef:
-            name: {{ include "chart.fullname" . }}-envs
+            name: {{ include "git-hubby.fullname" . }}-envs
         image: {{ .Values.controllerManager.manager.image.repository }}:{{ .Values.controllerManager.manager.image.tag
           | default .Chart.AppVersion }}
         lifecycle:
@@ -75,7 +75,7 @@ spec:
       nodeSelector: {{- toYaml .Values.controllerManager.nodeSelector | nindent 8 }}
       securityContext: {{- toYaml .Values.controllerManager.podSecurityContext | nindent
         8 }}
-      serviceAccountName: {{ include "chart.serviceAccountName" . }}
+      serviceAccountName: {{ include "git-hubby.serviceAccountName" . }}
       terminationGracePeriodSeconds: 20
       tolerations: {{- toYaml .Values.controllerManager.tolerations | nindent 8 }}
       {{- with .Values.controllerManager.topologySpreadConstraints }}
@@ -88,7 +88,7 @@ spec:
           labelSelector:
             matchLabels:
               control-plane: controller-manager
-              {{- include "chart.selectorLabels" $ | nindent 14 }}
+              {{- include "git-hubby.selectorLabels" $ | nindent 14 }}
           {{- end }}
         {{- end }}
       {{- end }}

@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "chart.name" -}}
+{{- define "git-hubby.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "chart.fullname" -}}
+{{- define "git-hubby.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "chart.chart" -}}
+{{- define "git-hubby.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "chart.labels" -}}
-helm.sh/chart: {{ include "chart.chart" . }}
-{{ include "chart.selectorLabels" . }}
+{{- define "git-hubby.labels" -}}
+helm.sh/chart: {{ include "git-hubby.chart" . }}
+{{ include "git-hubby.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,16 +45,16 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "chart.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "chart.name" . }}
+{{- define "git-hubby.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "git-hubby.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "chart.serviceAccountName" -}}
-{{- $default := (include "chart.fullname" .) }}
+{{- define "git-hubby.serviceAccountName" -}}
+{{- $default := (include "git-hubby.fullname" .) }}
 {{- with .Values.serviceAccount }}
 {{- if .create }}
 {{- default $default .name }}
@@ -68,7 +68,7 @@ Create the name of the service account to use
 Webhook namespaceSelector using the watchedNamespaces list.
 Uses matchExpressions with In operator so multiple namespaces are matched correctly.
 */}}
-{{- define "chart.webhookNamespaceSelector" -}}
+{{- define "git-hubby.webhookNamespaceSelector" -}}
 namespaceSelector:
   matchExpressions:
     - key: kubernetes.io/metadata.name
@@ -82,7 +82,7 @@ namespaceSelector:
 {{/*
 WATCH_NAMESPACE value: joins watchedNamespaces list with commas.
 */}}
-{{- define "chart.watchNamespace" -}}
+{{- define "git-hubby.watchNamespace" -}}
 {{- join "," .Values.controllerManager.watchedNamespaces -}}
 {{- end }}
 

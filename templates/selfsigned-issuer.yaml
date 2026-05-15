@@ -1,8 +1,8 @@
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "chart.fullname" . }}-selfsigned-issuer
+  name: {{ include "git-hubby.fullname" . }}-selfsigned-issuer
   labels:
-  {{- include "chart.labels" . | nindent 4 }}
+  {{- include "git-hubby.labels" . | nindent 4 }}
 spec:
   selfSigned: {}
