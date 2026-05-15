@@ -1,0 +1,89 @@
+suite: rbac
+templates:
+  - leader-election-rbac.yaml
+  - manager-rbac.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should create leader-election Role
+    template: leader-election-rbac.yaml
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: Role
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-leader-election-role
+
+  - it: should create leader-election RoleBinding
+    template: leader-election-rbac.yaml
+    documentIndex: 1
+    asserts:
+      - isKind:
+          of: RoleBinding
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-leader-election-rolebinding
+      - equal:
+          path: roleRef.name
+          value: test-release-git-hubby-leader-election-role
+      - equal:
+          path: subjects[0].name
+          value: test-release-git-hubby
+      - equal:
+          path: subjects[0].namespace
+          value: test-ns
+
+  - it: should create manager Role in watched namespace
+    template: manager-rbac.yaml
+    documentIndex: 0
+    asserts:
+      - isKind:
+          of: Role
+      - equal:
+          path: metadata.namespace
+          value: "github-configuration"
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-manager-role
+
+  - it: should create manager RoleBinding in watched namespace
+    template: manager-rbac.yaml
+    documentIndex: 1
+    asserts:
+      - isKind:
+          of: RoleBinding
+      - equal:
+          path: metadata.namespace
+          value: "github-configuration"
+      - equal:
+          path: subjects[0].namespace
+          value: test-ns
+
+  - it: should create Role per watched namespace
+    template: manager-rbac.yaml
+    set:
+      controllerManager.watchedNamespaces:
+        - ns-one
+        - ns-two
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: metadata.namespace
+          value: "ns-one"
+
+  - it: should create second Role for second watched namespace
+    template: manager-rbac.yaml
+    set:
+      controllerManager.watchedNamespaces:
+        - ns-one
+        - ns-two
+    documentIndex: 2
+    asserts:
+      - isKind:
+          of: Role
+      - equal:
+          path: metadata.namespace
+          value: "ns-two"
+

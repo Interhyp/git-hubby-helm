@@ -7,7 +7,6 @@ metadata:
 spec:
   type: {{ .Values.webhookService.type }}
   selector:
-    app.kubernetes.io/name: git-hubby
     control-plane: controller-manager
     {{- include "chart.selectorLabels" . | nindent 4 }}
   ports:

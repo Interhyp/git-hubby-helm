@@ -1,0 +1,49 @@
+suite: poddisruptionbudget
+templates:
+  - poddisruptionbudget.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should create a PDB with minAvailable by default
+    asserts:
+      - isKind:
+          of: PodDisruptionBudget
+      - equal:
+          path: metadata.name
+          value: test-release-git-hubby-controller-manager
+      - equal:
+          path: spec.minAvailable
+          value: 1
+
+  - it: should not render when disabled
+    set:
+      controllerManager.podDisruptionBudget.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should use maxUnavailable when set
+    set:
+      controllerManager.podDisruptionBudget.enabled: true
+      controllerManager.podDisruptionBudget.minAvailable: null
+      controllerManager.podDisruptionBudget.maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: 1
+      - notExists:
+          path: spec.minAvailable
+
+  - it: should have correct selector labels
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels.control-plane
+          value: controller-manager
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/name"]
+          value: git-hubby
+      - equal:
+          path: spec.selector.matchLabels["app.kubernetes.io/instance"]
+          value: test-release
+
