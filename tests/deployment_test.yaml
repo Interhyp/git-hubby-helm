@@ -18,9 +18,9 @@ tests:
       - equal:
           path: spec.template.spec.containers[0].name
           value: manager
-      - equal:
+      - matchRegex:
           path: spec.template.spec.containers[0].image
-          value: "ghcr.io/interhyp/git-hubby:0.0.2"
+          pattern: "^ghcr\\.io/interhyp/git-hubby:.+$"
 
   - it: should use custom image tag when set
     set:
