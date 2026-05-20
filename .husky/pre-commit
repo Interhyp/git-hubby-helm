@@ -1,0 +1,8 @@
+echo 'running helm lint...'
+helm lint .
+
+echo 'running helm unittest...'
+helm unittest .
+
+echo 'running helm schema generate...'
+helm schema -f values.yaml -o values.schema.json

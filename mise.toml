@@ -3,3 +3,10 @@ idiomatic_version_file_enable_tools = ["node"] # use .node-version
 
 [tools]
 helm = "4.0.4"
+
+[tasks.setup-helm-plugins]
+description = "Install all needed helm plugins needed for development"
+run = [
+  "helm plugin install https://github.com/losisin/helm-values-schema-json.git --verify=false",
+  "helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false",
+]
