@@ -253,6 +253,14 @@
                     "type": "string"
                 }
             }
+        },
+        "webhooks": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean"
+                }
+            }
         }
     }
 }

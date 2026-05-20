@@ -36,6 +36,8 @@ spec:
           value: {{ .Values.controllerManager.appCredentialsSecretNamespace | default .Release.Namespace | quote }}
         - name: KUBERNETES_CLUSTER_DOMAIN
           value: {{ quote .Values.kubernetesClusterDomain }}
+        - name: ENABLE_WEBHOOKS
+          value: {{ .Values.webhooks.enabled | quote }}
         envFrom:
         - configMapRef:
             name: {{ include "git-hubby.fullname" . }}-envs
@@ -54,10 +56,12 @@ spec:
           initialDelaySeconds: 15
           periodSeconds: 20
         name: manager
+        {{- if .Values.webhooks.enabled }}
         ports:
         - containerPort: 9443
           name: webhook-server
           protocol: TCP
+        {{- end }}
         readinessProbe:
           httpGet:
             path: /readyz
@@ -68,10 +72,12 @@ spec:
           }}
         securityContext: {{- toYaml .Values.controllerManager.manager.containerSecurityContext
           | nindent 10 }}
+        {{- if .Values.webhooks.enabled }}
         volumeMounts:
         - mountPath: /tmp/k8s-webhook-server/serving-certs
           name: webhook-certs
           readOnly: true
+        {{- end }}
       nodeSelector: {{- toYaml .Values.controllerManager.nodeSelector | nindent 8 }}
       securityContext: {{- toYaml .Values.controllerManager.podSecurityContext | nindent
         8 }}
@@ -92,7 +98,9 @@ spec:
           {{- end }}
         {{- end }}
       {{- end }}
+      {{- if .Values.webhooks.enabled }}
       volumes:
       - name: webhook-certs
         secret:
           secretName: webhook-server-certificate
+      {{- end }}

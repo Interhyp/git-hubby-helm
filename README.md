@@ -111,10 +111,11 @@ CRDs are located in `chart/crds/` and are installed automatically. The API group
 | `metricsService.ports[0].targetPort` | Container target port | `8443` |
 | `metricsService.ports[0].protocol` | Protocol | `TCP` |
 
-### Webhook Service
+### Webhooks
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `webhooks.enabled` | Enable or disable all Kubernetes admission webhook resources (ValidatingWebhookConfiguration, webhook Service, TLS Certificate, Issuer, and NetworkPolicy). Also sets the `ENABLE_WEBHOOKS` env var on the controller. | `true` |
 | `webhookService.type` | Service type for the webhook endpoint | `ClusterIP` |
 | `webhookService.ports[0].port` | Service port | `443` |
 | `webhookService.ports[0].targetPort` | Container target port | `9443` |
