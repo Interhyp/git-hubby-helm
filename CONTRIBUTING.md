@@ -6,8 +6,13 @@ Thank you for your interest in contributing! This guide covers everything you ne
 
 - [Helm](https://helm.sh/) 3+
 - [helm-unittest](https://github.com/helm-unittest/helm-unittest) plugin — for running chart unit tests
-- [Node.js](https://nodejs.org/) (see `.node-version`) — only needed for commit linting locally
-- [mise](https://mise.jdx.dev/) (optional — manages tool versions automatically)
+- [helm-values-schema-json](https://github.com/losisin/helm-values-schema-json) plugin — for generating the schema
+- [Node.js](https://nodejs.org/) (see `.node-version`) — only needed for commit linting locally and pre commit hooks
+- [mise](https://mise.jdx.dev/) — manages tool versions automatically
+
+### Installation
+
+If you install `mise` first you can just run `mise install` and `mise run setup-helm-plugins` and everything will install for you 🙂.
 
 ## Development Workflow
 
@@ -48,14 +53,17 @@ This project uses [helm-unittest](https://github.com/helm-unittest/helm-unittest
 ### Running tests
 
 ```bash
-# Install the helm-unittest plugin (one-time)
-helm plugin install https://github.com/helm-unittest/helm-unittest.git
+# Install the needed helm plugins (one-time)
+mise run setup-helm-plugins
 
 # Run all unit tests
 helm unittest .
 
 # Lint the chart
 helm lint .
+
+# Generate the schema
+helm schema
 
 # Render templates locally for inspection
 helm template .

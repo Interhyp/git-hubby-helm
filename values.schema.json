@@ -1,0 +1,258 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+        "controllerManager": {
+            "type": "object",
+            "properties": {
+                "manager": {
+                    "type": "object",
+                    "properties": {
+                        "args": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        },
+                        "containerSecurityContext": {
+                            "type": "object",
+                            "properties": {
+                                "allowPrivilegeEscalation": {
+                                    "type": "boolean"
+                                },
+                                "capabilities": {
+                                    "type": "object",
+                                    "properties": {
+                                        "drop": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "readOnlyRootFilesystem": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "image": {
+                            "type": "object",
+                            "properties": {
+                                "repository": {
+                                    "type": "string"
+                                },
+                                "tag": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "resources": {
+                            "type": "object",
+                            "properties": {
+                                "limits": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "requests": {
+                                    "type": "object",
+                                    "properties": {
+                                        "cpu": {
+                                            "type": "string"
+                                        },
+                                        "memory": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "nodeSelector": {
+                    "type": "object"
+                },
+                "podDisruptionBudget": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "minAvailable": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "podLabels": {
+                    "type": "object"
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "properties": {
+                        "runAsNonRoot": {
+                            "type": "boolean"
+                        },
+                        "seccompProfile": {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "replicas": {
+                    "type": "integer"
+                },
+                "strategy": {
+                    "type": "object",
+                    "properties": {
+                        "rollingUpdate": {
+                            "type": "object",
+                            "properties": {
+                                "maxSurge": {
+                                    "type": "integer"
+                                },
+                                "maxUnavailable": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "type": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "tolerations": {
+                    "type": "array"
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "maxSkew": {
+                                "type": "integer"
+                            },
+                            "topologyKey": {
+                                "type": "string"
+                            },
+                            "whenUnsatisfiable": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "watchedNamespaces": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "kubernetesClusterDomain": {
+            "type": "string"
+        },
+        "metricsService": {
+            "type": "object",
+            "properties": {
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "port": {
+                                "type": "integer"
+                            },
+                            "protocol": {
+                                "type": "string"
+                            },
+                            "targetPort": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "serviceAccount": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "type": "object"
+                },
+                "automount": {
+                    "type": "boolean"
+                },
+                "create": {
+                    "type": "boolean"
+                },
+                "labels": {
+                    "type": "object"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "secrets": {
+                    "type": "array"
+                }
+            }
+        },
+        "servingCert": {
+            "type": "object",
+            "properties": {
+                "issuerRef": {
+                    "type": "object",
+                    "properties": {
+                        "kind": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "webhookService": {
+            "type": "object",
+            "properties": {
+                "ports": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "port": {
+                                "type": "integer"
+                            },
+                            "protocol": {
+                                "type": "string"
+                            },
+                            "targetPort": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
