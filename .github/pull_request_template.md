@@ -15,6 +15,7 @@
 - [ ] My commits follow the [Conventional Commits](https://www.conventionalcommits.org/) format
 - [ ] I have run `helm lint .` and it passes
 - [ ] I have run `helm unittest .` and all tests pass
+- [ ] I have run `helm schema` and the schema is up to date
 - [ ] I have added/updated unit tests for any new or changed templates
 - [ ] I have updated documentation (README, CONTRIBUTING, values comments) if needed
 
