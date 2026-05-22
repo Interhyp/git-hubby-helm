@@ -1,3 +1,5 @@
+webhooks:
+  enabled: true
 controllerManager:
   podLabels: {}
   watchedNamespaces:

@@ -6,3 +6,4 @@ helm unittest .
 
 echo 'running helm schema generate...'
 helm schema -f values.yaml -o values.schema.json
+git add values.schema.json
