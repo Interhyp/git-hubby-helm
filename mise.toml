@@ -7,6 +7,6 @@ helm = "4.0.4"
 [tasks.setup-helm-plugins]
 description = "Install all needed helm plugins needed for development"
 run = [
-  "helm plugin install https://github.com/losisin/helm-values-schema-json.git --verify=false",
-  "helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false",
+  "helm plugin install https://github.com/losisin/helm-values-schema-json.git --verify=false 2>/dev/null || helm plugin update schema",
+  "helm plugin install https://github.com/helm-unittest/helm-unittest.git --verify=false 2>/dev/null || helm plugin update unittest",
 ]

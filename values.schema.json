@@ -232,23 +232,6 @@
         "webhookService": {
             "type": "object",
             "properties": {
-                "ports": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "port": {
-                                "type": "integer"
-                            },
-                            "protocol": {
-                                "type": "string"
-                            },
-                            "targetPort": {
-                                "type": "integer"
-                            }
-                        }
-                    }
-                },
                 "type": {
                     "type": "string"
                 }
