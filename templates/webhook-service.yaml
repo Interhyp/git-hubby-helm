@@ -11,5 +11,7 @@ spec:
     control-plane: controller-manager
     {{- include "git-hubby.selectorLabels" . | nindent 4 }}
   ports:
-  {{- .Values.webhookService.ports | toYaml | nindent 2 }}
+    - port: 443
+      protocol: TCP
+      targetPort: webhook-server
 {{- end }}
