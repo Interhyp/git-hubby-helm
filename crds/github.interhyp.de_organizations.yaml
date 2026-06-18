@@ -317,6 +317,12 @@ spec:
                   Description is a human-readable description of the organization.
                   This appears on the organization's GitHub profile page.
                 type: string
+              displayName:
+                description: |-
+                  DisplayName is the friendly display name shown on the organization's GitHub profile.
+                  This is different from the organization's login (Name field).
+                maxLength: 100
+                type: string
               githubAppInstallationId:
                 description: |-
                   GitHubAppInstallationId is the numeric ID of the GitHub App installation for this organization.
@@ -325,6 +331,12 @@ spec:
                 format: int64
                 minimum: 1
                 type: integer
+              location:
+                description: |-
+                  Location is the organization's location (e.g., "Munich, Germany").
+                  This appears on the organization's GitHub profile page.
+                maxLength: 100
+                type: string
               name:
                 description: |-
                   Name is the GitHub organization name (also known as the organization login).
@@ -365,6 +377,12 @@ spec:
                   type: object
                   x-kubernetes-map-type: atomic
                 type: array
+              website:
+                description: |-
+                  Website is the organization's website URL.
+                  This appears on the organization's GitHub profile page as a clickable link.
+                maxLength: 255
+                type: string
             required:
             - actionsSettings
             - codeSecurityConfigurations
