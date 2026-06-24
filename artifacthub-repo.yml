@@ -3,4 +3,4 @@
 repositoryID: 22c4f9f6-706c-4d2e-9380-44ec71c8904c
 ignore:
   - name: git-hubby
-    version: *0.0.0-snapshot*
+    version: "*0.0.0-snapshot*"
