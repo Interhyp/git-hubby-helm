@@ -90,10 +90,20 @@ jobs:
       - name: Update Chart.yaml version
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" Chart.yaml
-
-      - name: Package Helm chart
+      
+      - name: Package Helm Chart
         run: helm package .
 
       - name: Push chart to GHCR
-        run: helm push *.tgz "oci://${{ env.REGISTRY }}/${{ env.CHART_NAME }}"
+        id: push
+        run: |
+          helm push *.tgz "oci://${{ env.REGISTRY }}/${{ env.CHART_NAME }}" | tee push.log
+          DIGEST="$(grep -oE 'sha256:[a-f0-9]+' push.log | tail -1)"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
 
+      - name: cosign-installer
+        uses: sigstore/cosign-installer@v4.1.2
+
+      - name: Sign chart with Cosign (keyless)
+        run: |
+          cosign sign --yes "${{ env.REGISTRY }}/${{ env.CHART_NAME }}@${{ steps.push.outputs.digest }}"
