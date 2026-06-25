@@ -1,3 +1,5 @@
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/git-hubby)](https://artifacthub.io/packages/search?repo=git-hubby)
+
 # git-hubby Helm Chart
 
 A Helm chart for the [git-hubby](https://github.com/Interhyp/git-hubby) Kubernetes operator, managing GitHub resources (organizations, repositories, teams, and security configurations) declaratively via Custom Resource Definitions (CRDs).

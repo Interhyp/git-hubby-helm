@@ -16,3 +16,6 @@ keywords:
   - operator
   - kubernetes
   - gitops
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/operator: "true"
