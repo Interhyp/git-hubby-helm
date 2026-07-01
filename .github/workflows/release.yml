@@ -97,11 +97,11 @@ jobs:
           echo "${{ secrets.GPG_PASSPHRASE }}" > passphrase.txt
 
       - name: Package Helm Chart
-        run: helm package  
+        run: helm package . \
               --sign \
               --key "Interhyp (git-hubby helm siging)" \
               --keyring ~/.gnupg/pubring.kbx \
-              --passphrase-file passphrase.txt.
+              --passphrase-file passphrase.txt
 
       - name: Push chart to GHCR
         id: push
