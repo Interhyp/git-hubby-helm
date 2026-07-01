@@ -90,9 +90,18 @@ jobs:
       - name: Update Chart.yaml version
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" Chart.yaml
-      
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | base64 -d | gpg --batch --yes --import
+          echo "${{ secrets.GPG_PASSPHRASE }}" > passphrase.txt
+
       - name: Package Helm Chart
-        run: helm package .
+        run: helm package  
+              --sign \
+              --key "Interhyp (git-hubby helm siging)" \
+              --keyring ~/.gnupg/pubring.kbx \
+              --passphrase-file passphrase.txt.
 
       - name: Push chart to GHCR
         id: push
@@ -101,9 +110,6 @@ jobs:
           DIGEST="$(grep -oE 'sha256:[a-f0-9]+' push.log | tail -1)"
           echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
 
-      - name: cosign-installer
-        uses: sigstore/cosign-installer@v4.1.2
-
-      - name: Sign chart with Cosign (keyless)
+      - name: Cleanup
         run: |
-          cosign sign --yes "${{ env.REGISTRY }}/${{ env.CHART_NAME }}@${{ steps.push.outputs.digest }}"
+          rm -rf keyring.gpg passphrase.txt
