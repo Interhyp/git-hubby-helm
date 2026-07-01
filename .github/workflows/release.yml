@@ -95,6 +95,7 @@ jobs:
         run: |
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --yes --import
           echo "${{ secrets.GPG_PASSPHRASE }}" > passphrase.txt
+          echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 --export-secret-keys --armor YOUR_KEY_ID > /tmp/secring.gpg
 
       - name: Extract key fingerprint
         id: gpg
@@ -104,9 +105,14 @@ jobs:
           echo "fingerprint=$FPR" >> "$GITHUB_OUTPUT"
           echo "keyid=$KEYID" >> "$GITHUB_OUTPUT"
           echo "Using KEYID=$KEYID"
+      - name: Configure GPG for batch operations
+        run: |
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent || true
+          gpg-agent --daemon --pinentry-program /usr/bin/pinentry-curses
 
       - name: Package Helm Chart
-        run: helm package . --sign --key "${{ steps.gpg.outputs.keyid }}" --keyring ~/.gnupg/pubring.kbx --passphrase-file passphrase.txt
+        run: gpg --export-secret-keys --armor ${{ steps.gpg.outputs.keyid }} > /tmp/secring.gpg && helm package . --sign --key "${{ steps.gpg.outputs.keyid }}" --keyring /tmp/secring.gpg --passphrase-file passphrase.txt
 
       - name: Push chart to GHCR
         id: push
