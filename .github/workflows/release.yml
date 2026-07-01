@@ -96,13 +96,17 @@ jobs:
           echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --yes --import
           echo "${{ secrets.GPG_PASSPHRASE }}" > passphrase.txt
 
-      - name: Package Helm Chart
+      - name: Extract key fingerprint
+        id: gpg
         run: |
-              helm package . \
-              --sign \
-              --key "Interhyp (git-hubby helm siging)" \
-              --keyring ~/.gnupg/pubring.kbx \
-              --passphrase-file passphrase.txt
+          FPR=$(gpg --list-secret-keys --with-colons --fingerprint | awk -F: '/^fpr:/ {print $10; exit}')
+          KEYID=$(gpg --list-secret-keys --with-colons --keyid-format LONG | awk -F: '/^sec:/ {print $5; exit}')
+          echo "fingerprint=$FPR" >> "$GITHUB_OUTPUT"
+          echo "keyid=$KEYID" >> "$GITHUB_OUTPUT"
+          echo "Using KEYID=$KEYID"
+
+      - name: Package Helm Chart
+        run: helm package . --sign --key "${{ steps.gpg.outputs.keyid }}" --keyring ~/.gnupg/pubring.kbx --passphrase-file passphrase.txt
 
       - name: Push chart to GHCR
         id: push
