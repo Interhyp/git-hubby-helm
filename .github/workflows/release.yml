@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -95,7 +95,7 @@ jobs:
       - name: Package Helm Chart
         run: helm package .
 
-      - uses: sigstore/cosign-installer@v3
+      - uses: sigstore/cosign-installer@v4.1.2
 
       - name: Log in to GHCR for Cosign
         # Cosign requires a docker login to GHCR for signing and verifying images
@@ -119,3 +119,19 @@ jobs:
             --certificate-oidc-issuer https://token.actions.githubusercontent.com \
             --certificate-identity-regexp '^https://github.com/Interhyp/git-hubby-helm/.+/.+$' \
             "ghcr.io/interhyp/git-hubby-helm/git-hubby@${{ steps.push.outputs.digest }}"
+ 
+      - name: Setup Oras
+        if: github.ref == 'refs/heads/main'
+        uses: oras-project/setup-oras@v2.0.0
+
+      - name: Log in to GHCR with ORAS
+        if: github.ref == 'refs/heads/main'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | oras login "${{ env.REGISTRY }}" --username "${{ github.actor }}" --password-stdin
+
+      - name: Publish Artifact Hub Metadata File
+        if: github.ref == 'refs/heads/main'
+        run: |
+          oras push \
+          ${{ env.REGISTRY }}/${{ env.CHART_NAME }}/git-hubby:artifacthub.io \
+          --config /dev/null:application/vnd.cncf.artifacthub.config.v1+yaml \
+          artifacthub-repo.yml:application/vnd.cncf.artifacthub.repository-metadata.layer.v1.yaml

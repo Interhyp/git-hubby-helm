@@ -2,7 +2,6 @@
 idiomatic_version_file_enable_tools = ["node"] # use .node-version
 
 [tools]
-cosign = "latest"
 helm = "4.0.4"
 
 [tasks.setup-helm-plugins]
