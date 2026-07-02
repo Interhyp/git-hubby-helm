@@ -165,3 +165,42 @@ tests:
             name: APP_CREDENTIALS_SECRET_NAMESPACE
             value: "custom-ns"
 
+  - it: should not set deployment annotations by default
+    asserts:
+      - notExists:
+          path: metadata.annotations
+
+  - it: should set deployment-level annotations when provided
+    set:
+      controllerManager.annotations:
+        custom-annotation: custom-value
+        another-annotation: another-value
+    asserts:
+      - equal:
+          path: metadata.annotations.custom-annotation
+          value: custom-value
+      - equal:
+          path: metadata.annotations.another-annotation
+          value: another-value
+
+  - it: should always set the default pod annotation
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["kubectl.kubernetes.io/default-container"]
+          value: manager
+
+  - it: should merge custom podAnnotations with the default pod annotation
+    set:
+      controllerManager.podAnnotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8443"
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["kubectl.kubernetes.io/default-container"]
+          value: manager
+      - equal:
+          path: spec.template.metadata.annotations["prometheus.io/scrape"]
+          value: "true"
+      - equal:
+          path: spec.template.metadata.annotations["prometheus.io/port"]
+          value: "8443"
