@@ -9,6 +9,7 @@ permissions:
   packages: write
   issues: write
   pull-requests: write
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
@@ -20,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -91,12 +92,34 @@ jobs:
         run: |
           sed -i "s/^version:.*/version: ${{ steps.version.outputs.version }}/" Chart.yaml
 
-      - name: Package Helm chart
+      - name: Package Helm Chart
         run: helm package .
 
-      - name: Push chart to GHCR
-        run: helm push *.tgz "oci://${{ env.REGISTRY }}/${{ env.CHART_NAME }}"
+      - uses: sigstore/cosign-installer@v4.1.2
 
+      - name: Log in to GHCR for Cosign
+        # Cosign requires a docker login to GHCR for signing and verifying images
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push chart to GHCR
+        env:
+          COSIGN_EXPERIMENTAL: "1"
+        id: push
+        run: |
+          helm push *.tgz "oci://${{ env.REGISTRY }}/${{ env.CHART_NAME }}" | tee push.log
+          DIGEST="$(grep -oE 'sha256:[a-f0-9]+' push.log | tail -1)"
+          echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+          cosign sign --yes --oidc-provider github-actions \
+            "ghcr.io/interhyp/git-hubby-helm/git-hubby@${DIGEST}"
+
+      - name: Verify signature
+        run: |
+          cosign verify \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-identity-regexp '^https://github.com/Interhyp/git-hubby-helm/.+/.+$' \
+            "ghcr.io/interhyp/git-hubby-helm/git-hubby@${{ steps.push.outputs.digest }}"
+ 
       - name: Setup Oras
         if: github.ref == 'refs/heads/main'
         uses: oras-project/setup-oras@v2.0.0
