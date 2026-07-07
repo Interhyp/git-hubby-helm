@@ -5,6 +5,9 @@
         "controllerManager": {
             "type": "object",
             "properties": {
+                "annotations": {
+                    "type": "object"
+                },
                 "manager": {
                     "type": "object",
                     "properties": {
@@ -77,6 +80,9 @@
                     }
                 },
                 "nodeSelector": {
+                    "type": "object"
+                },
+                "podAnnotations": {
                     "type": "object"
                 },
                 "podDisruptionBudget": {

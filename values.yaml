@@ -1,6 +1,8 @@
 webhooks:
   enabled: true
 controllerManager:
+  annotations: {}
+  podAnnotations: {}
   podLabels: {}
   watchedNamespaces:
     - github-configuration
