@@ -3,7 +3,7 @@ name: git-hubby
 description: Helm chart for the git-hubby Kubernetes operator — manage GitHub resources declaratively via CRDs
 type: application
 version: 0.0.1
-appVersion: "snapshot-kubebuilder-update-from-v4.13.1-to-v4.15.0-427f913"
+appVersion: "snapshot-kubebuilder-update-from-v4.13.1-to-v4.15.0-749cf14"
 home: https://github.com/Interhyp/git-hubby-helm
 sources:
   - https://github.com/Interhyp/git-hubby-helm
