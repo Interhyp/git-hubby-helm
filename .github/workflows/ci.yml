@@ -8,10 +8,10 @@ jobs:
     steps:
       - &checkout
         name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
       - &setup_helm
         name: Set up Helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
       - name: Lint
         run: helm lint .
 
@@ -34,7 +34,7 @@ jobs:
       - name: Install helm-values-schema-json plugin
         run: helm plugin install https://github.com/losisin/helm-values-schema-json.git --verify=false
       - name: Generate values schema json
-        uses: losisin/helm-values-schema-json-action@v3
+        uses: losisin/helm-values-schema-json-action@cfefdf4241da6dbe17f3378e3cd0e863d4a4c3c8 # v3.0.1
         with:
           values: values.yaml
           output: values.schema.json
