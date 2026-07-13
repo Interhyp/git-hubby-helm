@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
@@ -29,14 +29,14 @@ jobs:
         run: echo "CHART_NAME=${CHART_NAME,,}" >> "$GITHUB_ENV"
 
       - name: Set up Helm
-        uses: azure/setup-helm@v5
+        uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
 
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login "${{ env.REGISTRY }}" --username "${{ github.actor }}" --password-stdin
 
       - name: Setup Node.js
         if: github.ref == 'refs/heads/main'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version-file: .node-version
           cache: npm
@@ -95,7 +95,7 @@ jobs:
       - name: Package Helm Chart
         run: helm package .
 
-      - uses: sigstore/cosign-installer@v4.1.2
+      - uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
 
       - name: Log in to GHCR for Cosign
         # Cosign requires a docker login to GHCR for signing and verifying images
@@ -132,7 +132,7 @@ jobs:
 
       - name: Setup Oras
         if: github.ref == 'refs/heads/main'
-        uses: oras-project/setup-oras@v2.0.0
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
 
       - name: Log in to GHCR with ORAS
         if: github.ref == 'refs/heads/main'
