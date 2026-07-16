@@ -1,0 +1,38 @@
+suite: labels
+templates:
+  - deployment.yaml
+release:
+  name: test-release
+  namespace: test-ns
+tests:
+  - it: should set helm.sh/chart label with name and version
+    asserts:
+      - equal:
+          path: metadata.labels["helm.sh/chart"]
+          value: "git-hubby-0.0.1"
+
+  - it: should set app.kubernetes.io/name selector label
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/name"]
+          value: "git-hubby"
+
+  - it: should set app.kubernetes.io/instance selector label
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/instance"]
+          value: "test-release"
+
+  - it: should set app.kubernetes.io/version label
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: "0.4.5"
+
+  - it: should set app.kubernetes.io/managed-by label
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/managed-by"]
+          value: "Helm"
+
+
