@@ -1,8 +1,8 @@
-{{- if .Values.webhooks.enabled }}
+{{- if .Values.selfSignedIssuer.enabled }}
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
-  name: {{ include "git-hubby.fullname" . }}-selfsigned-issuer
+  name: {{ include "git-hubby.selfSignedIssuerName" . }}
   labels:
   {{- include "git-hubby.labels" . | nindent 4 }}
 spec:

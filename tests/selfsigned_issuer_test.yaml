@@ -5,7 +5,7 @@ release:
   name: test-release
   namespace: test-ns
 tests:
-  - it: should render an Issuer resource
+  - it: should render an Issuer resource when selfSignedIssuer.enabled is true
     asserts:
       - isKind:
           of: Issuer
@@ -19,3 +19,25 @@ tests:
           path: spec.selfSigned
           value: {}
 
+  - it: should include chart labels
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: git-hubby
+            app.kubernetes.io/instance: test-release
+
+  - it: should not render when selfSignedIssuer.enabled is false
+    set:
+      selfSignedIssuer.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should include release name in issuer name to prevent collisions
+    release:
+      name: other-release
+    asserts:
+      - equal:
+          path: metadata.name
+          value: other-release-git-hubby-selfsigned-issuer

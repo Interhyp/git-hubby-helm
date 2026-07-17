@@ -15,7 +15,14 @@ spec:
   duration: {{ . }}
   {{- end }}
   issuerRef:
+    {{- if .Values.servingCert.issuerRef }}
     {{- toYaml .Values.servingCert.issuerRef | nindent 4 }}
+    {{- else if .Values.selfSignedIssuer.enabled }}
+    kind: Issuer
+    name: {{ include "git-hubby.selfSignedIssuerName" . }}
+    {{- else }}
+    {{- fail "servingCert.issuerRef must be set when selfSignedIssuer.enabled is false" }}
+    {{- end }}
   {{- with .Values.servingCert.privateKey }}
   privateKey:
     {{- toYaml . | nindent 4 }}

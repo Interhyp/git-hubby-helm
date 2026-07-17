@@ -80,6 +80,13 @@ namespaceSelector:
 {{- end }}
 
 {{/*
+Name of the internal self-signed cert-manager Issuer.
+*/}}
+{{- define "git-hubby.selfSignedIssuerName" -}}
+{{- printf "%s-selfsigned-issuer" (include "git-hubby.fullname" .) }}
+{{- end }}
+
+{{/*
 WATCH_NAMESPACE value: joins watchedNamespaces list with commas.
 */}}
 {{- define "git-hubby.watchNamespace" -}}
