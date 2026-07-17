@@ -66,11 +66,29 @@ serviceAccount:
   name: ""
 webhookService:
   type: ClusterIP
-servingCert:
+selfSignedIssuer:
+  # -- When true, a self-signed cert-manager Issuer is created and used by
+  # metricsCert and servingCert unless those have an explicit issuerRef set.
+  enabled: true
+metricsCert: {}
   # duration: 2160h0m0s
-  issuerRef:
-    kind: Issuer
-    name: selfsigned-issuer
+  # -- When set, overrides the selfSignedIssuer for this certificate.
+  # issuerRef:
+  #   kind: ClusterIssuer
+  #   name: letsencrypt-prod
+  # privateKey:
+  #   algorithm: RSA
+  #   size: 4096
+  # renewBefore: 360h0m0s
+  # subject:
+  #   organizations:
+  #     - My Organization
+servingCert: {}
+  # duration: 2160h0m0s
+  # -- When set, overrides the selfSignedIssuer for this certificate.
+  # issuerRef:
+  #   kind: ClusterIssuer
+  #   name: letsencrypt-prod
   # privateKey:
   #   algorithm: RSA
   #   size: 4096

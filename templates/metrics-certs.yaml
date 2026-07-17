@@ -10,7 +10,27 @@ spec:
     }}.svc'
   - '{{ include "git-hubby.fullname" . }}-controller-manager-metrics-service.{{ .Release.Namespace
     }}.svc.{{ .Values.kubernetesClusterDomain }}'
-  issuerRef:
-    kind: Issuer
-    name: '{{ include "git-hubby.fullname" . }}-selfsigned-issuer'
   secretName: metrics-server-cert
+  {{- with .Values.metricsCert.duration }}
+  duration: {{ . }}
+  {{- end }}
+  issuerRef:
+    {{- if .Values.metricsCert.issuerRef }}
+    {{- toYaml .Values.metricsCert.issuerRef | nindent 4 }}
+    {{- else if .Values.selfSignedIssuer.enabled }}
+    kind: Issuer
+    name: {{ include "git-hubby.selfSignedIssuerName" . }}
+    {{- else }}
+    {{- fail "metricsCert.issuerRef must be set when selfSignedIssuer.enabled is false" }}
+    {{- end }}
+  {{- with .Values.metricsCert.privateKey }}
+  privateKey:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.metricsCert.renewBefore }}
+  renewBefore: {{ . }}
+  {{- end }}
+  {{- with .Values.metricsCert.subject }}
+  subject:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}

@@ -1,6 +1,6 @@
-suite: serving-cert
+suite: metrics-cert
 templates:
-  - serving-cert.yaml
+  - metrics-certs.yaml
 release:
   name: test-release
   namespace: test-ns
@@ -10,20 +10,31 @@ tests:
       - isKind:
           of: Certificate
       - equal:
+          path: apiVersion
+          value: cert-manager.io/v1
+      - equal:
           path: metadata.name
-          value: test-release-git-hubby-serving-cert
+          value: test-release-git-hubby-metrics-certs
       - equal:
           path: spec.secretName
-          value: webhook-server-certificate
+          value: metrics-server-cert
 
   - it: should set correct DNS names
     asserts:
       - contains:
           path: spec.dnsNames
-          content: test-release-git-hubby-webhook-service.test-ns.svc
+          content: test-release-git-hubby-controller-manager-metrics-service.test-ns.svc
       - contains:
           path: spec.dnsNames
-          content: test-release-git-hubby-webhook-service.test-ns.svc.cluster.local
+          content: test-release-git-hubby-controller-manager-metrics-service.test-ns.svc.cluster.local
+
+  - it: should include chart labels
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: git-hubby
+            app.kubernetes.io/instance: test-release
 
   - it: should use the internal self-signed issuer by default
     asserts:
@@ -36,7 +47,7 @@ tests:
 
   - it: should use a custom issuerRef when configured
     set:
-      servingCert:
+      metricsCert:
         issuerRef:
           kind: ClusterIssuer
           name: letsencrypt-prod
@@ -51,7 +62,7 @@ tests:
   - it: should use custom issuerRef even when selfSignedIssuer is enabled
     set:
       selfSignedIssuer.enabled: true
-      servingCert:
+      metricsCert:
         issuerRef:
           kind: ClusterIssuer
           name: my-issuer
@@ -63,7 +74,7 @@ tests:
   - it: should use custom issuerRef when selfSignedIssuer is disabled
     set:
       selfSignedIssuer.enabled: false
-      servingCert:
+      metricsCert:
         issuerRef:
           kind: ClusterIssuer
           name: letsencrypt-prod
@@ -75,32 +86,32 @@ tests:
           path: spec.issuerRef.name
           value: letsencrypt-prod
 
-  - it: should not render when webhooks are disabled
+  - it: should always render regardless of webhooks.enabled
     set:
       webhooks.enabled: false
     asserts:
       - hasDocuments:
-          count: 0
+          count: 1
 
   - it: should set optional duration
     set:
-      servingCert.duration: "2160h0m0s"
+      metricsCert.duration: "8760h0m0s"
     asserts:
       - equal:
           path: spec.duration
-          value: "2160h0m0s"
+          value: "8760h0m0s"
 
   - it: should set optional renewBefore
     set:
-      servingCert.renewBefore: "360h0m0s"
+      metricsCert.renewBefore: "720h0m0s"
     asserts:
       - equal:
           path: spec.renewBefore
-          value: "360h0m0s"
+          value: "720h0m0s"
 
   - it: should set optional privateKey
     set:
-      servingCert:
+      metricsCert:
         privateKey:
           algorithm: ECDSA
           size: 256
@@ -114,7 +125,7 @@ tests:
 
   - it: should set optional subject
     set:
-      servingCert:
+      metricsCert:
         subject:
           organizations:
             - My Org
@@ -122,20 +133,6 @@ tests:
       - equal:
           path: spec.subject.organizations[0]
           value: My Org
-
-  - it: should set optional usages
-    set:
-      servingCert:
-        usages:
-          - server auth
-          - client auth
-    asserts:
-      - contains:
-          path: spec.usages
-          content: server auth
-      - contains:
-          path: spec.usages
-          content: client auth
 
   - it: should not include optional fields when not set
     asserts:
@@ -147,5 +144,4 @@ tests:
           path: spec.privateKey
       - notExists:
           path: spec.subject
-      - notExists:
-          path: spec.usages
+

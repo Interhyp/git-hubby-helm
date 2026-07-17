@@ -122,12 +122,70 @@ CRDs are located in `chart/crds/` and are installed automatically. The API group
 
 ### TLS Certificates (cert-manager)
 
-The chart creates a self-signed cert-manager `Issuer` and two `Certificate` resources automatically:
+The chart manages two cert-manager `Certificate` resources:
 
-- **Serving certificate** — TLS for the webhook endpoint (stored in Secret `webhook-server-certificate`)
-- **Metrics certificate** — TLS for the metrics endpoint (stored in Secret `metrics-server-cert`)
+- **Serving certificate** — TLS for the webhook endpoint (Secret `webhook-server-certificate`). Only rendered when `webhooks.enabled=true`.
+- **Metrics certificate** — TLS for the metrics endpoint (Secret `metrics-server-cert`). Always rendered.
 
-Both certificates use the built-in self-signed issuer deployed by the chart. No external issuer is required. These resources are not configurable via `values.yaml`.
+#### Self-signed Issuer
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `selfSignedIssuer.enabled` | Create a self-signed cert-manager `Issuer` (named `<fullname>-selfsigned-issuer`) and use it as the default issuer for both certificates. Set to `false` when bringing your own issuer. | `true` |
+
+When `selfSignedIssuer.enabled=true` and no explicit `issuerRef` is configured on a certificate, the chart automatically points that certificate at the built-in self-signed issuer. When `selfSignedIssuer.enabled=false`, an `issuerRef` **must** be provided for each certificate that is rendered, otherwise the chart will fail with a descriptive error.
+
+#### Metrics Certificate (`metricsCert`)
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `metricsCert.issuerRef` | cert-manager issuer reference. Overrides `selfSignedIssuer` for this certificate. | self-signed issuer |
+| `metricsCert.issuerRef.kind` | Issuer kind (`Issuer` or `ClusterIssuer`) | — |
+| `metricsCert.issuerRef.name` | Issuer name | — |
+| `metricsCert.issuerRef.group` | Issuer API group (optional) | — |
+| `metricsCert.duration` | Certificate validity duration (e.g. `2160h0m0s`) | cert-manager default |
+| `metricsCert.renewBefore` | How long before expiry cert-manager renews the certificate (e.g. `360h0m0s`) | cert-manager default |
+| `metricsCert.privateKey.algorithm` | Private key algorithm (`RSA`, `ECDSA`, `Ed25519`) | cert-manager default |
+| `metricsCert.privateKey.size` | Private key size in bits | cert-manager default |
+| `metricsCert.privateKey.encoding` | Private key encoding (`PKCS1`, `PKCS8`) | cert-manager default |
+| `metricsCert.privateKey.rotationPolicy` | Key rotation policy (`Never`, `Always`) | cert-manager default |
+| `metricsCert.subject` | X.509 subject fields (e.g. `organizations`, `countries`) | — |
+
+#### Serving Certificate (`servingCert`)
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `servingCert.issuerRef` | cert-manager issuer reference. Overrides `selfSignedIssuer` for this certificate. | self-signed issuer |
+| `servingCert.issuerRef.kind` | Issuer kind (`Issuer` or `ClusterIssuer`) | — |
+| `servingCert.issuerRef.name` | Issuer name | — |
+| `servingCert.issuerRef.group` | Issuer API group (optional) | — |
+| `servingCert.duration` | Certificate validity duration (e.g. `2160h0m0s`) | cert-manager default |
+| `servingCert.renewBefore` | How long before expiry cert-manager renews the certificate (e.g. `360h0m0s`) | cert-manager default |
+| `servingCert.privateKey.algorithm` | Private key algorithm (`RSA`, `ECDSA`, `Ed25519`) | cert-manager default |
+| `servingCert.privateKey.size` | Private key size in bits | cert-manager default |
+| `servingCert.privateKey.encoding` | Private key encoding (`PKCS1`, `PKCS8`) | cert-manager default |
+| `servingCert.privateKey.rotationPolicy` | Key rotation policy (`Never`, `Always`) | cert-manager default |
+| `servingCert.subject` | X.509 subject fields (e.g. `organizations`, `countries`) | — |
+| `servingCert.usages` | Key usages (e.g. `server auth`, `client auth`) | — |
+
+#### Example: Bring your own ClusterIssuer
+
+```yaml
+selfSignedIssuer:
+  enabled: false
+
+metricsCert:
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+  duration: 8760h0m0s
+  renewBefore: 720h0m0s
+
+servingCert:
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-prod
+```
 
 ### Other
 
@@ -160,7 +218,7 @@ The chart deploys:
 1. **Deployment** — The controller manager pod running `/manager` with webhook and health probe endpoints
 2. **Services** — A metrics service (port 8443) and a webhook service (port 443 → 9443)
 3. **RBAC** — ClusterRoles and bindings for the manager, leader election, metrics auth, and per-CRD admin/editor/viewer roles
-4. **Certificates** — A self-signed Issuer, a serving certificate for the webhook endpoint, and a metrics certificate (all via cert-manager)
+4. **Certificates** — An optional self-signed `Issuer` (controlled by `selfSignedIssuer.enabled`), a serving certificate for the webhook endpoint (when `webhooks.enabled=true`), and a metrics certificate — all via cert-manager. Both certificates fall back to the built-in self-signed issuer unless a custom `issuerRef` is configured.
 5. **ValidatingWebhookConfiguration** — Admission webhooks validating `Organization` and `Repository` resources on CREATE/UPDATE
 6. **NetworkPolicy** — Allows webhook traffic from `kube-system` namespace to the controller on port 9443
 7. **ServiceMonitor** — Prometheus ServiceMonitor for scraping `/metrics` from the controller
