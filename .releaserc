@@ -10,7 +10,10 @@
     [
       "@semantic-release/release-notes-generator",
       {
-        "preset": "conventionalcommits"
+        "preset": "conventionalcommits",
+        "writerOpts": {
+          "commitPartial": "*{{#if scope}} **{{scope}}:**{{/if}} {{#if subject}}{{subject}}{{else}}{{header}}{{/if}}{{#if shortHash}} ({{shortHash}}){{/if}}{{#if body}}\n\n  > {{body}}\n{{/if}}\n"
+        }
       }
     ],
     [
