@@ -374,7 +374,6 @@ spec:
                   Configurability may be restricted by Enterprise policies.
                 properties:
                   defaultRepositoryPermission:
-                    default: read
                     description: |-
                       DefaultRepositoryPermission defines the default permission level members have for organization repositories.
                       This setting can not be set if it is fixed at Enterprise level.
@@ -392,13 +391,11 @@ spec:
                       GitHub Enterprise Server 2.20+.
                     type: boolean
                   membersCanCreatePages:
-                    default: true
                     description: |-
                       MembersCanCreatePages defines whether organization members can create GitHub Pages sites.
                       Existing published sites will not be impacted.
                     type: boolean
                   membersCanCreatePrivatePages:
-                    default: true
                     description: |-
                       MembersCanCreatePrivatePages defines whether organization members can create private GitHub Pages sites.
                       Existing published sites will not be impacted.
@@ -409,7 +406,6 @@ spec:
                       which are visible to organization members with permission.
                     type: boolean
                   membersCanCreatePublicPages:
-                    default: true
                     description: |-
                       MembersCanCreatePublicPages defines whether organization members can create public GitHub Pages sites.
                       Existing published sites will not be impacted.
@@ -422,7 +418,6 @@ spec:
                       This setting is not supported for Organizations in Enterprises with Managed Users (EMU).
                     type: boolean
                   membersCanForkPrivateRepositories:
-                    default: false
                     description: MembersCanForkPrivateRepositories defines whether
                       organization members can fork private organization repositories.
                     type: boolean
