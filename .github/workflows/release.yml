@@ -83,7 +83,18 @@ jobs:
             SHORT_SHA="$(git rev-parse --short HEAD)"
             echo "version=0.0.0-main.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
           else
-            BRANCH="$(echo '${{ github.ref_name }}' | sed 's|[^a-zA-Z0-9._-]|-|g' | cut -c1-50)"
+            # Sanitize the branch name into a valid SemVer prerelease identifier:
+            RAW_BRANCH="${{ github.ref_name }}"
+            # 1) replace any char that is not alphanumeric, dot or hyphen with a hyphen (e.g. "/" -> "-")
+            BRANCH="$(echo "$RAW_BRANCH" | sed 's|[^a-zA-Z0-9._-]|-|g')"
+            # 2) collapse consecutive dots into a single dot to avoid empty SemVer identifiers (e.g. "a..b" -> "a.b")
+            BRANCH="$(echo "$BRANCH" | sed -E 's/[.]+/./g')"
+            # 3) strip leading/trailing dots or hyphens, which are invalid at the start/end of a SemVer identifier
+            BRANCH="$(echo "$BRANCH" | sed -E 's/^[.-]+//; s/[.-]+$//')"
+            # 4) truncate to 50 chars to keep the resulting version reasonably short
+            BRANCH="$(echo "$BRANCH" | cut -c1-50)"
+            # 5) strip trailing dots/hyphens again in case truncation cut right after a separator
+            BRANCH="$(echo "$BRANCH" | sed -E 's/[.-]+$//')"
             SHORT_SHA="$(git rev-parse --short HEAD)"
             echo "version=0.0.0-snapshot.${BRANCH}.${SHORT_SHA}" >> "$GITHUB_OUTPUT"
           fi
