@@ -2,7 +2,7 @@
 idiomatic_version_file_enable_tools = ["node"] # use .node-version
 
 [tools]
-helm = "4.2.3"
+helm = "4.2.4"
 
 [tasks.setup-helm-plugins]
 description = "Install all needed helm plugins needed for development"
