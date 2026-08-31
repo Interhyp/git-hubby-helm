@@ -34,7 +34,7 @@ jobs:
       - name: Install helm-values-schema-json plugin
         run: helm plugin install https://github.com/losisin/helm-values-schema-json.git --verify=false
       - name: Generate values schema json
-        uses: losisin/helm-values-schema-json-action@9f555986124362af978a9861cf0f81e1956300ad # v3.1.0
+        uses: losisin/helm-values-schema-json-action@9ed68d9d464a5e6f7f5fc1f3dc071828cf7d13a2 # v3.2.0
         with:
           values: values.yaml
           output: values.schema.json
