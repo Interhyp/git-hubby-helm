@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.21.0
+    controller-gen.kubebuilder.io/version: v0.22.0
   name: rulesetpresets.github.interhyp.de
 spec:
   group: github.interhyp.de
@@ -98,8 +98,7 @@ spec:
                   x-kubernetes-validations:
                   - message: at most one of the fields in [actorId actorSlug] may
                       be set
-                    rule: '[has(self.actorId),has(self.actorSlug)].filter(x,x==true).size()
-                      <= 1'
+                    rule: (has(self.actorId)?1:0)+(has(self.actorSlug)?1:0) <= 1
                 maxItems: 100
                 type: array
               conditions:
@@ -259,8 +258,8 @@ spec:
                 x-kubernetes-validations:
                 - message: at most one of the fields in [repositoryName repositoryProperty]
                     may be set
-                  rule: '[has(self.repositoryName),has(self.repositoryProperty)].filter(x,x==true).size()
-                    <= 1'
+                  rule: (has(self.repositoryName)?1:0)+(has(self.repositoryProperty)?1:0)
+                    <= 1
               enforcement:
                 description: |-
                   Enforcement determines whether the ruleset is enforced.
@@ -514,6 +513,65 @@ spec:
                           RequiredReviewThreadResolution requires all review comment threads to be resolved before merging.
                           This ensures all feedback is addressed.
                         type: boolean
+                      requiredReviewers:
+                        description: |-
+                          RequiredReviewers forces pull request approval by the configured reviewers
+                          on all pull requests changing files that match the configured file patterns.
+                        items:
+                          description: |-
+                            RequiredPullRequestReviewer is the configuration for a required review on all pull request changing files that match
+                            the configured file patterns.
+                          properties:
+                            filePatterns:
+                              default:
+                              - '*'
+                              description: |-
+                                FilePatterns are fnmatch syntax patterns that pull request changes are matched against.
+                                If a pull request changes any matching file it must be approved by the configured reviewers.
+                                Defaults to "*" representing all files.
+                              items:
+                                type: string
+                              maxItems: 10
+                              type: array
+                            minimumApprovals:
+                              default: 0
+                              description: |-
+                                MinimumApprovals is the minimum number of approvals required before a matching pull request
+                                can be merged. If set to zero, the team will be added to the pull request but approval is optional.
+                                Requires a non-negative value. Defaults to 0.
+                              minimum: 0
+                              type: integer
+                            reviewer:
+                              description: Reviewer defines who is required to review.
+                              properties:
+                                id:
+                                  description: ID of the required reviewer. This field
+                                    is exclusive with Slug.
+                                  format: int64
+                                  type: integer
+                                slug:
+                                  description: |-
+                                    Slug identifying the required reviewer. This field is exclusive with ID.
+                                    Slug will be resolved to the id during reconciliation.
+                                  type: string
+                                type:
+                                  description: Type of the required reviewer. Currently
+                                    only Teams are supported.
+                                  enum:
+                                  - Team
+                                  type: string
+                              required:
+                              - type
+                              type: object
+                              x-kubernetes-validations:
+                              - message: exactly one of the fields in [id slug] must
+                                  be set
+                                rule: (has(self.id)?1:0)+(has(self.slug)?1:0) == 1
+                          required:
+                          - reviewer
+                          type: object
+                        maxItems: 10
+                        type: array
                     required:
                     - allowedMergeMethods
                     type: object
@@ -572,8 +630,8 @@ spec:
                           x-kubernetes-validations:
                           - message: at most one of the fields in [integrationId appSlug]
                               may be set
-                            rule: '[has(self.integrationId),has(self.appSlug)].filter(x,x==true).size()
-                              <= 1'
+                            rule: (has(self.integrationId)?1:0)+(has(self.appSlug)?1:0)
+                              <= 1
                         maxItems: 100
                         minItems: 1
                         type: array
