@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.21.0
+    controller-gen.kubebuilder.io/version: v0.22.0
   name: organizations.github.interhyp.de
 spec:
   group: github.interhyp.de
@@ -265,8 +265,7 @@ spec:
                       x-kubernetes-validations:
                       - message: exactly one of the fields in [value values] must
                           be set
-                        rule: '[has(self.value),has(self.values)].filter(x,x==true).size()
-                          == 1'
+                        rule: (has(self.value)?1:0)+(has(self.values)?1:0) == 1
                     description:
                       description: Description provides additional information about
                         the purpose and usage of this custom property.
@@ -368,6 +367,60 @@ spec:
                 maxLength: 39
                 minLength: 1
                 type: string
+              memberPrivileges:
+                description: |-
+                  MemberPrivileges configures the privileges and default permissions for members of this organization.
+                  Configurability may be restricted by Enterprise policies.
+                properties:
+                  defaultRepositoryPermission:
+                    description: |-
+                      DefaultRepositoryPermission defines the default permission level members have for organization repositories.
+                      This setting can not be set if it is fixed at Enterprise level.
+                    enum:
+                    - read
+                    - write
+                    - admin
+                    - none
+                    type: string
+                  membersCanCreateInternalRepositories:
+                    description: |-
+                      MembersCanCreateInternalRepositories defines whether organization members can create internal repositories,
+                      which are visible to all enterprise members. You can only allow members to create internal repositories if
+                      your organization is associated with an enterprise account using GitHub Enterprise Cloud or
+                      GitHub Enterprise Server 2.20+.
+                    type: boolean
+                  membersCanCreatePages:
+                    description: |-
+                      MembersCanCreatePages defines whether organization members can create GitHub Pages sites.
+                      Existing published sites will not be impacted.
+                    type: boolean
+                  membersCanCreatePrivatePages:
+                    description: |-
+                      MembersCanCreatePrivatePages defines whether organization members can create private GitHub Pages sites.
+                      Existing published sites will not be impacted.
+                    type: boolean
+                  membersCanCreatePrivateRepositories:
+                    description: |-
+                      MembersCanCreatePrivateRepositories defines whether organization members can create private repositories,
+                      which are visible to organization members with permission.
+                    type: boolean
+                  membersCanCreatePublicPages:
+                    description: |-
+                      MembersCanCreatePublicPages defines whether organization members can create public GitHub Pages sites.
+                      Existing published sites will not be impacted.
+                      This setting is not supported for Organizations in Enterprises with Managed Users (EMU).
+                    type: boolean
+                  membersCanCreatePublicRepositories:
+                    description: |-
+                      MembersCanCreatePublicRepositories defines whether organization members can create public repositories,
+                      which are visible to anyone.
+                      This setting is not supported for Organizations in Enterprises with Managed Users (EMU).
+                    type: boolean
+                  membersCanForkPrivateRepositories:
+                    description: MembersCanForkPrivateRepositories defines whether
+                      organization members can fork private organization repositories.
+                    type: boolean
+                type: object
               memberSuffix:
                 default: ""
                 description: |-
