@@ -363,7 +363,7 @@ spec:
                   If an inline ruleset and a referenced RulesetPreset (or two referenced RulesetPresets) share the same name,
                   identical definitions are applied once (a warning is logged), while differing definitions are treated as a
                   conflict: no rulesets are changed on GitHub and the RulesetsSynced condition is set to False.
-                  At most 5 inline rulesets are allowed; larger or shared sets of rules belong in RulesetPresets.
+                  At most 10 inline rulesets are allowed; larger or shared sets of rules belong in RulesetPresets.
                   The target 'repository' is only supported at organization level; inline rulesets with target 'repository'
                   are filtered out (i.e. are not checked nor applied), the same as for RulesetPresets.
                 items:
@@ -1098,7 +1098,7 @@ spec:
                   - name
                   - rules
                   type: object
-                maxItems: 5
+                maxItems: 10
                 type: array
                 x-kubernetes-validations:
                 - message: ruleset names must be unique
