@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.21.0
+    controller-gen.kubebuilder.io/version: v0.22.0
   name: codesecurityconfigurations.github.interhyp.de
 spec:
   group: github.interhyp.de
@@ -56,25 +56,6 @@ spec:
                 - code_security
                 - secret_protection
                 type: string
-              code_scanning_delegated_alert_dismissal:
-                description: |-
-                  CodeScanningDelegatedAlertDismissal enables users to dismiss code scanning alerts.
-                  When enabled, users with appropriate permissions can dismiss alerts that don't require action.
-                enum:
-                - enabled
-                - disabled
-                - not_set
-                type: string
-              code_scanning_options:
-                description: CodeScanningOptions configures advanced code scanning
-                  options.
-                properties:
-                  allowAdvanced:
-                    description: |-
-                      AllowAdvanced determines whether users can enable advanced code scanning features.
-                      When true, repository administrators can configure advanced code scanning settings beyond the default setup.
-                    type: boolean
-                type: object
               codeScanningDefaultSetup:
                 description: |-
                   CodeScanningDefaultSetup enables or disables default code scanning setup.
@@ -107,6 +88,25 @@ spec:
                     type: string
                 required:
                 - runnerType
+                type: object
+              codeScanningDelegatedAlertDismissal:
+                description: |-
+                  CodeScanningDelegatedAlertDismissal enables users to dismiss code scanning alerts.
+                  When enabled, users with appropriate permissions can dismiss alerts that don't require action.
+                enum:
+                - enabled
+                - disabled
+                - not_set
+                type: string
+              codeScanningOptions:
+                description: CodeScanningOptions configures advanced code scanning
+                  options.
+                properties:
+                  allowAdvanced:
+                    description: |-
+                      AllowAdvanced determines whether users can enable advanced code scanning features.
+                      When true, repository administrators can configure advanced code scanning settings beyond the default setup.
+                    type: boolean
                 type: object
               codeSecurity:
                 description: CodeSecurity is a meta-setting that enables multiple
@@ -284,8 +284,8 @@ spec:
                       x-kubernetes-validations:
                       - message: exactly one of the fields in [reviewerId reviewerName]
                           must be set
-                        rule: '[has(self.reviewerId),has(self.reviewerName)].filter(x,x==true).size()
-                          == 1'
+                        rule: (has(self.reviewerId)?1:0)+(has(self.reviewerName)?1:0)
+                          == 1
                     type: array
                 required:
                 - reviewers
