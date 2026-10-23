@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.21.0
+    controller-gen.kubebuilder.io/version: v0.22.0
   name: rulesetpresets.github.interhyp.de
 spec:
   group: github.interhyp.de
@@ -98,8 +98,7 @@ spec:
                   x-kubernetes-validations:
                   - message: at most one of the fields in [actorId actorSlug] may
                       be set
-                    rule: '[has(self.actorId),has(self.actorSlug)].filter(x,x==true).size()
-                      <= 1'
+                    rule: (has(self.actorId)?1:0)+(has(self.actorSlug)?1:0) <= 1
                 maxItems: 100
                 type: array
               conditions:
@@ -259,18 +258,33 @@ spec:
                 x-kubernetes-validations:
                 - message: at most one of the fields in [repositoryName repositoryProperty]
                     may be set
-                  rule: '[has(self.repositoryName),has(self.repositoryProperty)].filter(x,x==true).size()
-                    <= 1'
+                  rule: (has(self.repositoryName)?1:0)+(has(self.repositoryProperty)?1:0)
+                    <= 1
               enforcement:
                 description: |-
                   Enforcement determines whether the ruleset is enforced.
                   - "disabled": Ruleset is not enforced
                   - "active": Ruleset is actively enforced; violations block operations
                   - "evaluate": Ruleset is evaluated but violations only generate warnings
+                  Required unless Extends is set.
                 enum:
                 - disabled
                 - active
                 - evaluate
+                type: string
+              extends:
+                description: |-
+                  Extends names a RulesetPreset in the same namespace this ruleset inherits from. The effective ruleset is the
+                  fully resolved parent with the fields of this ruleset merged on top: scalar and boolean fields override the
+                  parent's value if set, rules are merged recursively, bypassActors, status checks, required reviewers and
+                  workflows are merged by key (a child entry replaces the parent entry with the same key), while conditions,
+                  allowedMergeMethods and pattern rules replace the parent's value completely. Name is never inherited, and
+                  inherited entries cannot be removed. Chains may be at most 5 levels deep.
+                  If the chain cannot be resolved (missing parent, cycle, too deep), this ruleset is neither created, updated
+                  nor deleted on GitHub, and the RulesetsSynced condition is set to False.
+                maxLength: 253
+                minLength: 1
+                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*$
                 type: string
               name:
                 description: Name is the display name of the ruleset shown in the
@@ -281,6 +295,7 @@ spec:
                 type: string
               rules:
                 description: Rules defines the specific rules to enforce in this ruleset.
+                  Required unless Extends is set.
                 properties:
                   branchNamePattern:
                     description: |-
@@ -567,8 +582,7 @@ spec:
                               x-kubernetes-validations:
                               - message: exactly one of the fields in [id slug] must
                                   be set
-                                rule: '[has(self.id),has(self.slug)].filter(x,x==true).size()
-                                  == 1'
+                                rule: (has(self.id)?1:0)+(has(self.slug)?1:0) == 1
                           required:
                           - reviewer
                           type: object
@@ -632,8 +646,8 @@ spec:
                           x-kubernetes-validations:
                           - message: at most one of the fields in [integrationId appSlug]
                               may be set
-                            rule: '[has(self.integrationId),has(self.appSlug)].filter(x,x==true).size()
-                              <= 1'
+                            rule: (has(self.integrationId)?1:0)+(has(self.appSlug)?1:0)
+                              <= 1
                         maxItems: 100
                         minItems: 1
                         type: array
@@ -744,9 +758,8 @@ spec:
                     type: object
                 type: object
               target:
-                default: branch
                 description: |-
-                  Target defines which ref types this ruleset applies to.
+                  Target defines which ref types this ruleset applies to. Defaults to 'branch' (after resolving Extends).
                   The Target 'repository' is only supported by Organization-level RulesetPresets. Repository-level
                   RulesetPresets with Target 'repository' are filtered out (i.e. are not checked nor applied).
                 enum:
@@ -756,10 +769,13 @@ spec:
                 - repository
                 type: string
             required:
-            - enforcement
             - name
-            - rules
             type: object
+            x-kubernetes-validations:
+            - message: enforcement is required unless extends is set
+              rule: has(self.extends) || has(self.enforcement)
+            - message: rules is required unless extends is set
+              rule: has(self.extends) || has(self.rules)
           status:
             description: status defines the observed state of RulesetPreset
             properties:
@@ -836,6 +852,9 @@ spec:
         required:
         - spec
         type: object
+        x-kubernetes-validations:
+        - message: a RulesetPreset cannot extend itself
+          rule: '!has(self.spec.extends) || self.spec.extends != self.metadata.name'
     served: true
     storage: true
     subresources:
