@@ -24,10 +24,31 @@ tests:
           value: "test-release"
 
   - it: should set app.kubernetes.io/version label
+    chart:
+      appVersion: "1.2.3"
     asserts:
-      - matchRegex:
+      - equal:
           path: metadata.labels["app.kubernetes.io/version"]
-          pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+"
+          value: "1.2.3"
+
+  - it: should truncate snapshot version labels without changing the image tag
+    chart:
+      appVersion: "snapshot-pr-255-8bff0cd79317c3d2cd10197cfbb3c2af48a1d4c8-45591244849-2"
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: "snapshot-pr-255-8bff0cd79317c3d2cd10197cfbb3c2af48a1d4c8-455912"
+      - equal:
+          path: spec.template.spec.containers[0].image
+          value: "ghcr.io/interhyp/git-hubby:snapshot-pr-255-8bff0cd79317c3d2cd10197cfbb3c2af48a1d4c8-45591244849-2"
+
+  - it: should make semantic version build metadata valid in labels
+    chart:
+      appVersion: "1.2.3+build.4"
+    asserts:
+      - equal:
+          path: metadata.labels["app.kubernetes.io/version"]
+          value: "1.2.3_build.4"
 
   - it: should set app.kubernetes.io/managed-by label
     asserts:
